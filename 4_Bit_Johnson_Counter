@@ -1,0 +1,58 @@
+//---------------------------
+// 4-Bit Johnson Counter
+//---------------------------
+module johnson_counter (
+    input clk,
+    input reset,
+    output reg [3:0] q
+);
+
+always @(posedge clk or posedge reset) begin
+    if (reset)
+        q <= 4'b0000;
+    else
+        q <= {q[2:0], ~q[3]};
+end
+
+endmodule
+
+//---------------------------
+// Testbench
+//---------------------------
+module johnson_counter_tb;
+
+reg clk;
+reg reset;
+wire [3:0] q;
+
+johnson_counter uut (
+    .clk(clk),
+    .reset(reset),
+    .q(q)
+);
+
+initial begin
+    clk = 0;
+    forever #5 clk = ~clk;
+end
+
+initial begin
+
+    $dumpfile("johnson_counter.vcd");
+    $dumpvars(0, johnson_counter_tb);
+
+    reset = 1;
+    #10;
+
+    reset = 0;
+
+    #100;
+
+    $finish;
+end
+
+initial begin
+    $monitor("Time = %0t | Reset = %b | Q = %b", $time, reset, q);
+end
+
+endmodule
