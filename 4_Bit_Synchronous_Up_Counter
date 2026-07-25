@@ -1,0 +1,72 @@
+//==================================================
+// 4-Bit Synchronous Up Counter
+//==================================================
+
+module synchronous_counter (
+    input  wire       clk,
+    input  wire       reset,
+    output reg  [3:0] q
+);
+
+    always @(posedge clk) begin
+        if (reset)
+            q <= 4'b0000;
+        else
+            q <= q + 1'b1;
+    end
+
+endmodule
+
+
+//=================================
+// Testbench 
+//=================================
+
+`timescale 1ns/1ps
+
+module synchronous_counter_tb;
+
+    reg clk;
+    reg reset;
+    wire [3:0] q;
+
+    // Instantiate the counter
+    synchronous_counter uut (
+        .clk(clk),
+        .reset(reset),
+        .q(q)
+    );
+
+    // Clock generation
+    always #5 clk = ~clk;
+
+    initial begin
+        // VCD dump for waveform
+        $dumpfile("dump.vcd");
+        $dumpvars(0, synchronous_counter_tb);
+
+        // Initialize signals
+        clk = 0;
+        reset = 1;
+
+        // Apply reset
+        #10;
+        reset = 0;
+
+        // Run counter
+        #100;
+
+        // Apply reset again
+        reset = 1;
+        #10;
+
+        $finish;
+    end
+
+    // Display output
+    initial begin
+        $monitor("Time = %0t | Reset = %b | Count = %b",
+                 $time, reset, q);
+    end
+
+endmodule
