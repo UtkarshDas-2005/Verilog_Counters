@@ -1,0 +1,82 @@
+//==============================================================
+// 4-bit Up/Down Counter
+//==============================================================
+
+module up_down_counter (
+    input wire clk,
+    input wire rst,
+    input wire up_down,   // 1 = Up count, 0 = Down count
+    output reg [3:0] count
+);
+
+always @(posedge clk or posedge rst) begin
+    if (rst)
+        count <= 4'b0000;
+    else if (up_down)
+        count <= count + 1'b1;  // Count Up
+    else
+        count <= count - 1'b1;  // Count Down
+end
+
+endmodule
+
+//==============================================================
+// Testbench for 4-bit Up/Down Counter
+//==============================================================
+
+module tb_up_down_counter;
+
+reg clk;
+reg rst;
+reg up_down;
+wire [3:0] count;
+
+// Instantiate the Design Under Test
+up_down_counter uut (
+    .clk(clk),
+    .rst(rst),
+    .up_down(up_down),
+    .count(count)
+);
+
+// Clock Generation
+
+always #5 clk = ~clk;
+
+// Waveform Generation
+
+initial begin
+    $dumpfile("dump.vcd");
+    $dumpvars(0, tb_up_down_counter);
+end
+
+// Test Sequence
+
+initial begin
+    clk = 0;
+    rst = 1;
+    up_down = 1;
+
+    // Reset counter
+    #10;
+    rst = 0;
+
+    // Up counting
+    #50;
+
+    // Down counting
+    up_down = 0;
+    #50;
+
+    // Stop simulation
+    $finish;
+end
+
+// Monitor Output
+
+initial begin
+    $monitor("Time = %0t | Reset = %b | Up_Down = %b | Count = %d",
+             $time, rst, up_down, count);
+end
+
+endmodule
